@@ -20,6 +20,16 @@ type Grammar struct {
 	Difficulty  sql.NullString
 }
 
+type Solution struct {
+	ID        uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	GrammarID uuid.UUID
+	UserID    uuid.UUID
+	Solution  string
+	Grammar   string
+}
+
 type User struct {
 	ID        uuid.UUID
 	CreatedAt time.Time

@@ -44,3 +44,27 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	helpers.RespondWithJSON(w, http.StatusCreated, user)
 }
+
+func GetUserByClerkId(w http.ResponseWriter, r *http.Request) {
+	apiConfig := r.Context().Value("api_config").(*config.APIConfig)
+
+	type parameters struct {
+		ID string `json:"id"`
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	params := parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error parsing request body: %v", err))
+		return
+	}
+
+	user, err := apiConfig.DB.GetUserByClerkId(r.Context(), params.ID)
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error finding user by clerk_id: %v", err))
+	}
+
+	helpers.RespondWithJSON(w, http.StatusOK, user)
+
+}

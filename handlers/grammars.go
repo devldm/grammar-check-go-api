@@ -10,6 +10,7 @@ import (
 	"github.com/devldm/grammar-check-go/config"
 	"github.com/devldm/grammar-check-go/helpers"
 	"github.com/devldm/grammar-check-go/internal/database"
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
 
@@ -24,6 +25,24 @@ func HandlerGetAllGrammars(w http.ResponseWriter, r *http.Request) {
 	//models.DatabaseFeedsToFeeds(feeds)
 
 	helpers.RespondWithJSON(w, http.StatusOK, grammars)
+}
+
+func GetGrammarById(w http.ResponseWriter, r *http.Request) {
+	apiConfig := r.Context().Value("api_config").(*config.APIConfig)
+
+	grammarIdParam := chi.URLParam(r, "grammarId")
+	grammarId, err := uuid.Parse(grammarIdParam)
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error parsing grammar id: %v", err))
+	}
+
+	grammar, err := apiConfig.DB.GetGrammarById(r.Context(), grammarId)
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error finding grammar by grammar id: %v", err))
+	}
+
+	helpers.RespondWithJSON(w, http.StatusOK, grammar)
+
 }
 
 func CreateGrammarChallenge(w http.ResponseWriter, r *http.Request) {
