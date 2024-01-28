@@ -19,3 +19,10 @@ type Grammar struct {
 	Description sql.NullString
 	Difficulty  sql.NullString
 }
+
+type User struct {
+	ID        uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	ClerkID   string
+}

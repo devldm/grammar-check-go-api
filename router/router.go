@@ -34,6 +34,9 @@ func SetupRouter(dbq *database.Queries) *chi.Mux {
 	v1Router.Get("/grammars", handlers.HandlerGetAllGrammars)
 	v1Router.Post("/grammars", handlers.CreateGrammarChallenge)
 
+	//v1Router.Get("/user-webhook", handlers.UserCreatedWebhook)
+	v1Router.Post("/user", handlers.CreateUser)
+
 	router.Mount("/v1", v1Router)
 
 	return router
