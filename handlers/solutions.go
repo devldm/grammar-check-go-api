@@ -39,7 +39,7 @@ func CreateSolution(w http.ResponseWriter, r *http.Request) {
 
 	type parameters struct {
 		GrammarId uuid.UUID `json:"grammar_id"`
-		UserId    uuid.UUID `json:"user_id"`
+		UserId    string    `json:"user_id"`
 		Solution  string    `json:"solution"`
 		Grammar   string    `json:"grammar"`
 	}
@@ -57,12 +57,17 @@ func CreateSolution(w http.ResponseWriter, r *http.Request) {
 		helpers.RespondWithError(w, http.StatusBadRequest, "Grammar could not be found.")
 	}
 
+	user, err := apiConfig.DB.GetUserByClerkId(r.Context(), params.UserId)
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusBadRequest, "User could not be found.")
+	}
+
 	solution, err := apiConfig.DB.CreateSolution(r.Context(), database.CreateSolutionParams{
 		ID:        uuid.New(),
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
 		Solution:  params.Solution,
-		UserID:    params.UserId,
+		UserID:    user.ID,
 		GrammarID: params.GrammarId,
 		Grammar:   grammar.Grammar,
 	})
