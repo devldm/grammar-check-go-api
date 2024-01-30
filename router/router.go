@@ -37,7 +37,10 @@ func SetupRouter(dbq *database.Queries) *chi.Mux {
 	v1Router.Get("/user/clerk-id", handlers.GetUserByClerkId)
 
 	v1Router.Post("/solutions", handlers.CreateSolution)
+	v1Router.Get("/solutions", handlers.GetAllSolutions)
+
 	v1Router.Get("/solutions/{clerkUserId}", handlers.GetSolutionsByUser)
+	v1Router.Get("/solutions/{clerkUserId}/{grammarId}", handlers.GetHasUserSolvedGrammar)
 
 	router.Mount("/v1", v1Router)
 

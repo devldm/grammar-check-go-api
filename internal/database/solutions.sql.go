@@ -51,6 +51,32 @@ func (q *Queries) CreateSolution(ctx context.Context, arg CreateSolutionParams) 
 	return i, err
 }
 
+const getHasUserSolved = `-- name: GetHasUserSolved :one
+SELECT id, created_at, updated_at, grammar_id, user_id, solution, grammar FROM solutions
+WHERE user_id = $1 AND grammar_id = $2
+LIMIT 1
+`
+
+type GetHasUserSolvedParams struct {
+	UserID    uuid.UUID
+	GrammarID uuid.UUID
+}
+
+func (q *Queries) GetHasUserSolved(ctx context.Context, arg GetHasUserSolvedParams) (Solution, error) {
+	row := q.db.QueryRowContext(ctx, getHasUserSolved, arg.UserID, arg.GrammarID)
+	var i Solution
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.GrammarID,
+		&i.UserID,
+		&i.Solution,
+		&i.Grammar,
+	)
+	return i, err
+}
+
 const getSolutions = `-- name: GetSolutions :many
 SELECT id, created_at, updated_at, grammar_id, user_id, solution, grammar FROM solutions
 LIMIT $1

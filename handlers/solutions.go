@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/devldm/grammar-check-go/config"
@@ -13,8 +15,22 @@ import (
 	"github.com/google/uuid"
 )
 
-func GetAllSolutions() {
+func GetAllSolutions(w http.ResponseWriter, r *http.Request) {
+	apiConfig := r.Context().Value("api_config").(*config.APIConfig)
+	limit := r.URL.Query().Get("limit")
 
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error parsing limit to integer: %v", err))
+
+	}
+
+	solutions, err := apiConfig.DB.GetSolutions(r.Context(), int32(limitInt))
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error finding grammar by grammar id: %v", err))
+	}
+
+	helpers.RespondWithJSON(w, http.StatusOK, solutions)
 }
 
 func GetSolutionsByUser(w http.ResponseWriter, r *http.Request) {
@@ -29,6 +45,37 @@ func GetSolutionsByUser(w http.ResponseWriter, r *http.Request) {
 	solutions, err := apiConfig.DB.GetSolutionsByUserId(r.Context(), user.ID)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error finding grammar by grammar id: %v", err))
+	}
+
+	helpers.RespondWithJSON(w, http.StatusOK, solutions)
+}
+
+func GetHasUserSolvedGrammar(w http.ResponseWriter, r *http.Request) {
+	apiConfig := r.Context().Value("api_config").(*config.APIConfig)
+	clerkUserIdParam := chi.URLParam(r, "clerkUserId")
+	grammar_id := chi.URLParam(r, "grammarId")
+
+	uuidGrammarId, err := uuid.Parse(grammar_id)
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error parsing grammar id: %v", err))
+	}
+
+	user, err := apiConfig.DB.GetUserByClerkId(r.Context(), clerkUserIdParam)
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error fetching user by clerkId: %v", err))
+	}
+
+	solutions, err := apiConfig.DB.GetHasUserSolved(r.Context(), database.GetHasUserSolvedParams{
+		UserID:    user.ID,
+		GrammarID: uuidGrammarId,
+	})
+	if err != nil {
+		if err == sql.ErrNoRows {
+			helpers.RespondWithJSON(w, http.StatusOK, nil)
+			return
+		} else {
+			helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error finding solutions: %v", err))
+		}
 	}
 
 	helpers.RespondWithJSON(w, http.StatusOK, solutions)
