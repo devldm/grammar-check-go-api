@@ -33,6 +33,33 @@ func GetAllSolutions(w http.ResponseWriter, r *http.Request) {
 	helpers.RespondWithJSON(w, http.StatusOK, solutions)
 }
 
+func GetSolutionsByGrammarIdWithUserData(w http.ResponseWriter, r *http.Request) {
+	apiConfig := r.Context().Value("api_config").(*config.APIConfig)
+	limit := r.URL.Query().Get("limit")
+	grammarIdParam := chi.URLParam(r, "grammarId")
+
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error parsing limit to integer: %v", err))
+
+	}
+
+	uuidGrammarId, err := uuid.Parse(grammarIdParam)
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error parsing grammar id: %v", err))
+	}
+
+	solutions, err := apiConfig.DB.GetSolutionsByGrammarIdWithUserData(r.Context(), database.GetSolutionsByGrammarIdWithUserDataParams{
+		GrammarID: uuidGrammarId,
+		Limit:     int32(limitInt),
+	})
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error finding grammar by grammar id: %v", err))
+	}
+
+	helpers.RespondWithJSON(w, http.StatusOK, solutions)
+}
+
 func GetSolutionsByUser(w http.ResponseWriter, r *http.Request) {
 	apiConfig := r.Context().Value("api_config").(*config.APIConfig)
 	clerkUserIdParam := chi.URLParam(r, "clerkUserId")
