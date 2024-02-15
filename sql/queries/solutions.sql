@@ -15,3 +15,17 @@ LIMIT 1;
 INSERT INTO solutions (id, created_at, updated_at, grammar_id, user_id, solution, grammar)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *;
+
+-- name: GetSolutionsWithUserData :many
+SELECT s.*, u.clerk_username, u.clerk_email, u.clerk_image, u.id AS user_id
+FROM solutions s
+JOIN users u ON s.user_id = u.id
+LIMIT $1;
+
+-- name: GetSolutionsByGrammarIdWithUserData :many
+SELECT s.*, u.clerk_username, u.clerk_email, u.clerk_image, u.id AS user_id
+FROM solutions s
+JOIN users u ON s.user_id = u.id
+WHERE s.grammar_id = $1
+LIMIT $2;
+

@@ -113,6 +113,68 @@ func (q *Queries) GetSolutions(ctx context.Context, limit int32) ([]Solution, er
 	return items, nil
 }
 
+const getSolutionsByGrammarIdWithUserData = `-- name: GetSolutionsByGrammarIdWithUserData :many
+SELECT s.id, s.created_at, s.updated_at, s.grammar_id, s.user_id, s.solution, s.grammar, u.clerk_username, u.clerk_email, u.clerk_image, u.id AS user_id
+FROM solutions s
+JOIN users u ON s.user_id = u.id
+WHERE s.grammar_id = $1
+LIMIT $2
+`
+
+type GetSolutionsByGrammarIdWithUserDataParams struct {
+	GrammarID uuid.UUID
+	Limit     int32
+}
+
+type GetSolutionsByGrammarIdWithUserDataRow struct {
+	ID            uuid.UUID
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	GrammarID     uuid.UUID
+	UserID        uuid.UUID
+	Solution      string
+	Grammar       string
+	ClerkUsername string
+	ClerkEmail    string
+	ClerkImage    string
+	UserID_2      uuid.UUID
+}
+
+func (q *Queries) GetSolutionsByGrammarIdWithUserData(ctx context.Context, arg GetSolutionsByGrammarIdWithUserDataParams) ([]GetSolutionsByGrammarIdWithUserDataRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSolutionsByGrammarIdWithUserData, arg.GrammarID, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetSolutionsByGrammarIdWithUserDataRow
+	for rows.Next() {
+		var i GetSolutionsByGrammarIdWithUserDataRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.GrammarID,
+			&i.UserID,
+			&i.Solution,
+			&i.Grammar,
+			&i.ClerkUsername,
+			&i.ClerkEmail,
+			&i.ClerkImage,
+			&i.UserID_2,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSolutionsByUserId = `-- name: GetSolutionsByUserId :many
 SELECT id, created_at, updated_at, grammar_id, user_id, solution, grammar FROM solutions 
 WHERE user_id = $1
@@ -135,6 +197,62 @@ func (q *Queries) GetSolutionsByUserId(ctx context.Context, userID uuid.UUID) ([
 			&i.UserID,
 			&i.Solution,
 			&i.Grammar,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSolutionsWithUserData = `-- name: GetSolutionsWithUserData :many
+SELECT s.id, s.created_at, s.updated_at, s.grammar_id, s.user_id, s.solution, s.grammar, u.clerk_username, u.clerk_email, u.clerk_image, u.id AS user_id
+FROM solutions s
+JOIN users u ON s.user_id = u.id
+LIMIT $1
+`
+
+type GetSolutionsWithUserDataRow struct {
+	ID            uuid.UUID
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	GrammarID     uuid.UUID
+	UserID        uuid.UUID
+	Solution      string
+	Grammar       string
+	ClerkUsername string
+	ClerkEmail    string
+	ClerkImage    string
+	UserID_2      uuid.UUID
+}
+
+func (q *Queries) GetSolutionsWithUserData(ctx context.Context, limit int32) ([]GetSolutionsWithUserDataRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSolutionsWithUserData, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetSolutionsWithUserDataRow
+	for rows.Next() {
+		var i GetSolutionsWithUserDataRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.GrammarID,
+			&i.UserID,
+			&i.Solution,
+			&i.Grammar,
+			&i.ClerkUsername,
+			&i.ClerkEmail,
+			&i.ClerkImage,
+			&i.UserID_2,
 		); err != nil {
 			return nil, err
 		}

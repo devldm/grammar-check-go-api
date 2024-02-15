@@ -31,8 +31,11 @@ type Solution struct {
 }
 
 type User struct {
-	ID        uuid.UUID
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	ClerkID   string
+	ID            uuid.UUID
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	ClerkID       string
+	ClerkEmail    string
+	ClerkUsername string
+	ClerkImage    string
 }

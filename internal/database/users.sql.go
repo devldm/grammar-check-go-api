@@ -13,16 +13,19 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (id, created_at, updated_at, clerk_id)
-VALUES ($1, $2, $3, $4)
-RETURNING id, created_at, updated_at, clerk_id
+INSERT INTO users (id, created_at, updated_at, clerk_id, clerk_username, clerk_email, clerk_image)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING id, created_at, updated_at, clerk_id, clerk_email, clerk_username, clerk_image
 `
 
 type CreateUserParams struct {
-	ID        uuid.UUID
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	ClerkID   string
+	ID            uuid.UUID
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	ClerkID       string
+	ClerkUsername string
+	ClerkEmail    string
+	ClerkImage    string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -31,6 +34,9 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.CreatedAt,
 		arg.UpdatedAt,
 		arg.ClerkID,
+		arg.ClerkUsername,
+		arg.ClerkEmail,
+		arg.ClerkImage,
 	)
 	var i User
 	err := row.Scan(
@@ -38,12 +44,15 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.ClerkID,
+		&i.ClerkEmail,
+		&i.ClerkUsername,
+		&i.ClerkImage,
 	)
 	return i, err
 }
 
 const getUserByClerkId = `-- name: GetUserByClerkId :one
-SELECT id, created_at, updated_at, clerk_id FROM users 
+SELECT id, created_at, updated_at, clerk_id, clerk_email, clerk_username, clerk_image FROM users 
 WHERE clerk_id = $1
 `
 
@@ -55,12 +64,15 @@ func (q *Queries) GetUserByClerkId(ctx context.Context, clerkID string) (User, e
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.ClerkID,
+		&i.ClerkEmail,
+		&i.ClerkUsername,
+		&i.ClerkImage,
 	)
 	return i, err
 }
 
 const getUserById = `-- name: GetUserById :one
-SELECT id, created_at, updated_at, clerk_id FROM users 
+SELECT id, created_at, updated_at, clerk_id, clerk_email, clerk_username, clerk_image FROM users 
 WHERE id = $1
 `
 
@@ -72,12 +84,15 @@ func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.ClerkID,
+		&i.ClerkEmail,
+		&i.ClerkUsername,
+		&i.ClerkImage,
 	)
 	return i, err
 }
 
 const getUsers = `-- name: GetUsers :many
-SELECT id, created_at, updated_at, clerk_id FROM users
+SELECT id, created_at, updated_at, clerk_id, clerk_email, clerk_username, clerk_image FROM users
 LIMIT $1
 `
 
@@ -95,6 +110,9 @@ func (q *Queries) GetUsers(ctx context.Context, limit int32) ([]User, error) {
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.ClerkID,
+			&i.ClerkEmail,
+			&i.ClerkUsername,
+			&i.ClerkImage,
 		); err != nil {
 			return nil, err
 		}

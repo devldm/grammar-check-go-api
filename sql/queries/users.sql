@@ -11,6 +11,6 @@ SELECT * FROM users
 WHERE clerk_id = $1;
 
 -- name: CreateUser :one
-INSERT INTO users (id, created_at, updated_at, clerk_id)
-VALUES ($1, $2, $3, $4)
+INSERT INTO users (id, created_at, updated_at, clerk_id, clerk_username, clerk_email, clerk_image)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *;
