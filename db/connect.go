@@ -17,10 +17,10 @@ func ConnectDB() (*sql.DB, error) {
 		log.Fatal("PORT is not found in the environment")
 	}
 
-	dbURL := config.Config("DB_URL")
+	dbURL := config.Config("PROD_DB_URL")
 
 	if dbURL == "" {
-		log.Fatal("DB_URL is not found in the environment")
+		log.Fatal("PROD_DB_URL is not found in the environment")
 	}
 
 	conn, err := sql.Open("postgres", dbURL)
