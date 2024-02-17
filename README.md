@@ -29,4 +29,10 @@ GET "/user/clerk-id" # Get user by clerk-id
 POST "/solutions" # Create new solution
 
 GET "/solutions/{clerkUserId}" # Get user submitted solutions
+
+GET "/solutions/user/{clerkUserId}" # Get solutions by user id
+
+GET "/solutions/{clerkUserId}/{grammarId}" # Get users solutions per grammar (check if they have completed a grammar)
+
+GET "/solutions/{grammarId}" # Get solutions by grammar (with user data)
 ```
