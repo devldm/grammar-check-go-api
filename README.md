@@ -1,12 +1,15 @@
 # GrammerCheck Go API
 This repository serves the GrammarCheck frontend application with data from a postgres database. 
 
+It is hosted on Google Cloud Run (containerised) and uses Google Cloud build to keep up to date with the repository changes.
+
 ## Tech Stack
 - Go
 - go-chi
 - Docker
 - postgreSQL
 - SQLC & Goose
+- Google Cloud Run & Google Cloud Build
 
 ## Routes
 As this is still underdevlopment this will be updated and 
