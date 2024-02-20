@@ -29,3 +29,6 @@ JOIN users u ON s.user_id = u.id
 WHERE s.grammar_id = $1
 LIMIT $2;
 
+-- name: DeleteSolutionBySolutionId :exec
+DELETE FROM solutions
+WHERE id = $1;

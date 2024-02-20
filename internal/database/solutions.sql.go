@@ -51,6 +51,16 @@ func (q *Queries) CreateSolution(ctx context.Context, arg CreateSolutionParams) 
 	return i, err
 }
 
+const deleteSolutionBySolutionId = `-- name: DeleteSolutionBySolutionId :exec
+DELETE FROM solutions
+WHERE id = $1
+`
+
+func (q *Queries) DeleteSolutionBySolutionId(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteSolutionBySolutionId, id)
+	return err
+}
+
 const getHasUserSolved = `-- name: GetHasUserSolved :one
 SELECT id, created_at, updated_at, grammar_id, user_id, solution, grammar FROM solutions
 WHERE user_id = $1 AND grammar_id = $2

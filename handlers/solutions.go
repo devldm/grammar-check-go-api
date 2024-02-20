@@ -152,3 +152,29 @@ func CreateSolution(w http.ResponseWriter, r *http.Request) {
 
 	helpers.RespondWithJSON(w, http.StatusCreated, solution)
 }
+
+func DeleteSolution(w http.ResponseWriter, r *http.Request) {
+	apiConfig := r.Context().Value("api_config").(*config.APIConfig)
+
+	type parameters struct {
+		ID string `json:"id"`
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	params := parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error parsing request body: %v", err))
+		return
+	}
+
+	uuidSolutionId, err := uuid.Parse(params.ID)
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error parsing solution id: %v", err))
+	}
+
+	err = apiConfig.DB.DeleteSolutionBySolutionId(r.Context(), uuidSolutionId)
+	if err != nil {
+		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error deleting solution with solution id: %v", err))
+	}
+}
