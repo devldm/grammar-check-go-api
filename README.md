@@ -17,25 +17,31 @@ As this is still underdevlopment this will be updated and
 ```bash
 GET "/grammars" # Returns all grammars
 
-POST "/grammars" # Create new grammar challenge
-
 GET "/grammars/{grammarId}" # Get one grammar by Id
+
+POST "/grammars" # Create new grammar challenge
 ```
 ### Users
 ```bash
-POST "/user" # Create user
-
 GET "/user/clerk-id" # Get user by clerk-id
+
+POST "/user" # Create user
 ```
 ### Solutions
 ```bash
-POST "/solutions" # Create new solution
-
-GET "/solutions/{clerkUserId}" # Get user submitted solutions
+GET "/solutions" # Get all solutions
 
 GET "/solutions/user/{clerkUserId}" # Get solutions by user id
 
 GET "/solutions/{clerkUserId}/{grammarId}" # Get users solutions per grammar (check if they have completed a grammar)
 
 GET "/solutions/{grammarId}" # Get solutions by grammar (with user data)
+
+POST "/solutions" # Create new solution
+
+POST "/solutions/delete" # Delete solution
+```
+### Health
+```bash
+GET "/health" # Check health
 ```
