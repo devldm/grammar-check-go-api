@@ -27,7 +27,7 @@ func GetAllSolutions(w http.ResponseWriter, r *http.Request) {
 
 	solutions, err := apiConfig.DB.GetSolutions(r.Context(), int32(limitInt))
 	if err != nil {
-		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error finding grammar by grammar id: %v", err))
+		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error finding solutions: %v", err))
 	}
 
 	helpers.RespondWithJSON(w, http.StatusOK, solutions)
@@ -54,7 +54,7 @@ func GetSolutionsByGrammarIdWithUserData(w http.ResponseWriter, r *http.Request)
 		Limit:     int32(limitInt),
 	})
 	if err != nil {
-		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error finding grammar by grammar id: %v", err))
+		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error finding solutions by grammar id: %v", err))
 	}
 
 	helpers.RespondWithJSON(w, http.StatusOK, solutions)
@@ -71,7 +71,7 @@ func GetSolutionsByUser(w http.ResponseWriter, r *http.Request) {
 
 	solutions, err := apiConfig.DB.GetSolutionsByUserId(r.Context(), user.ID)
 	if err != nil {
-		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error finding grammar by grammar id: %v", err))
+		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error finding solutions by user: %v", err))
 	}
 
 	helpers.RespondWithJSON(w, http.StatusOK, solutions)
