@@ -17,7 +17,7 @@ import (
 func HandlerGetAllGrammars(w http.ResponseWriter, r *http.Request) {
 	apiConfig := r.Context().Value("api_config").(*config.APIConfig)
 
-	grammars, err := apiConfig.DB.GetGrammars(r.Context(), 10)
+	grammars, err := apiConfig.DB.GetGrammars(r.Context(), 50)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Error fetching grammars: %v", err))
 		return

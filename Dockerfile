@@ -1,4 +1,4 @@
-FROM golang:1.22.0-alpine3.19
+FROM golang:1.23.4-alpine3.19
 
 ENV PORT=8080
 ENV HOST=0.0.0.0
