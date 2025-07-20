@@ -7,47 +7,39 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/devldm/grammar-check-go/config"
 	"github.com/devldm/grammar-check-go/helpers"
 	"github.com/devldm/grammar-check-go/internal/database"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
 
-func HandlerGetAllGrammars(w http.ResponseWriter, r *http.Request) {
-	apiConfig := r.Context().Value("api_config").(*config.APIConfig)
-
-	grammars, err := apiConfig.DB.GetGrammars(r.Context(), 50)
+func (c *APIConfig) HandlerGetAllGrammars(w http.ResponseWriter, r *http.Request) {
+	grammars, err := c.DB.GetGrammars(r.Context(), 50)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Error fetching grammars: %v", err))
 		return
 	}
-	//models.DatabaseFeedsToFeeds(feeds)
+	// models.DatabaseFeedsToFeeds(feeds)
 
 	helpers.RespondWithJSON(w, http.StatusOK, grammars)
 }
 
-func GetGrammarById(w http.ResponseWriter, r *http.Request) {
-	apiConfig := r.Context().Value("api_config").(*config.APIConfig)
-
-	grammarIdParam := chi.URLParam(r, "grammarId")
-	grammarId, err := uuid.Parse(grammarIdParam)
+func (c *APIConfig) GetGrammarByID(w http.ResponseWriter, r *http.Request) {
+	grammarIDParam := chi.URLParam(r, "grammarId")
+	grammarID, err := uuid.Parse(grammarIDParam)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error parsing grammar id: %v", err))
 	}
 
-	grammar, err := apiConfig.DB.GetGrammarById(r.Context(), grammarId)
+	grammar, err := c.DB.GetGrammarById(r.Context(), grammarID)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error finding grammar by grammar id: %v", err))
 	}
 
 	helpers.RespondWithJSON(w, http.StatusOK, grammar)
-
 }
 
-func CreateGrammarChallenge(w http.ResponseWriter, r *http.Request) {
-	apiConfig := r.Context().Value("api_config").(*config.APIConfig)
-
+func (c *APIConfig) CreateGrammarChallenge(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Grammar     string `json:"grammar"`
 		Difficulty  string `json:"difficulty"`
@@ -74,7 +66,7 @@ func CreateGrammarChallenge(w http.ResponseWriter, r *http.Request) {
 		difficulty.Valid = true
 	}
 
-	grammar, err := apiConfig.DB.CreateGrammar(r.Context(), database.CreateGrammarParams{
+	grammar, err := c.DB.CreateGrammar(r.Context(), database.CreateGrammarParams{
 		ID:          uuid.New(),
 		CreatedAt:   time.Now().UTC(),
 		UpdatedAt:   time.Now().UTC(),
@@ -82,7 +74,6 @@ func CreateGrammarChallenge(w http.ResponseWriter, r *http.Request) {
 		Description: description,
 		Difficulty:  difficulty,
 	})
-
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Error creating grammar: %v", err))
 	}

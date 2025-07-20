@@ -7,7 +7,6 @@ import (
 
 	"github.com/devldm/grammar-check-go/config"
 	"github.com/devldm/grammar-check-go/db"
-	"github.com/devldm/grammar-check-go/internal/database"
 	"github.com/devldm/grammar-check-go/router"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
@@ -23,9 +22,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	databaseInstance := database.New(dbConn)
-
-	router := router.SetupRouter(databaseInstance)
+	router := router.SetupRouter(dbConn)
 
 	srv := &http.Server{
 		Handler: router,
