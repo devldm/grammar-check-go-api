@@ -27,6 +27,7 @@ func ConnectDB() (*sql.DB, error) {
 	if err != nil {
 		log.Fatal("Cant connect to the database", err)
 	}
+	// defer conn.Close()
 
 	if err != nil {
 		log.Fatal("Cant create db connection", err)

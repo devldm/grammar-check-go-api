@@ -4,13 +4,17 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/devldm/grammar-check-go/config"
+	"github.com/devldm/grammar-check-go/handlers"
 )
 
-func ConfigMiddleware(config *config.APIConfig) func(next http.Handler) http.Handler {
+type key string
+
+const APIConfigKey key = "api_config"
+
+func ConfigMiddleware(config *handlers.APIConfig) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ctx := context.WithValue(r.Context(), "api_config", config)
+			ctx := context.WithValue(r.Context(), APIConfigKey, config)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

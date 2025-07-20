@@ -8,24 +8,21 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/devldm/grammar-check-go/config"
 	"github.com/devldm/grammar-check-go/helpers"
 	"github.com/devldm/grammar-check-go/internal/database"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
 
-func GetAllSolutions(w http.ResponseWriter, r *http.Request) {
-	apiConfig := r.Context().Value("api_config").(*config.APIConfig)
+func (c *APIConfig) GetAllSolutions(w http.ResponseWriter, r *http.Request) {
 	limit := r.URL.Query().Get("limit")
 
 	limitInt, err := strconv.Atoi(limit)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error parsing limit to integer: %v", err))
-
 	}
 
-	solutions, err := apiConfig.DB.GetSolutions(r.Context(), int32(limitInt))
+	solutions, err := c.DB.GetSolutions(r.Context(), int32(limitInt))
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error finding solutions: %v", err))
 	}
@@ -33,24 +30,22 @@ func GetAllSolutions(w http.ResponseWriter, r *http.Request) {
 	helpers.RespondWithJSON(w, http.StatusOK, solutions)
 }
 
-func GetSolutionsByGrammarIdWithUserData(w http.ResponseWriter, r *http.Request) {
-	apiConfig := r.Context().Value("api_config").(*config.APIConfig)
+func (c *APIConfig) GetSolutionsByGrammarIDWithUserData(w http.ResponseWriter, r *http.Request) {
 	limit := r.URL.Query().Get("limit")
-	grammarIdParam := chi.URLParam(r, "grammarId")
+	grammarIDParam := chi.URLParam(r, "grammarId")
 
 	limitInt, err := strconv.Atoi(limit)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error parsing limit to integer: %v", err))
-
 	}
 
-	uuidGrammarId, err := uuid.Parse(grammarIdParam)
+	uuidGrammarID, err := uuid.Parse(grammarIDParam)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error parsing grammar id: %v", err))
 	}
 
-	solutions, err := apiConfig.DB.GetSolutionsByGrammarIdWithUserData(r.Context(), database.GetSolutionsByGrammarIdWithUserDataParams{
-		GrammarID: uuidGrammarId,
+	solutions, err := c.DB.GetSolutionsByGrammarIdWithUserData(r.Context(), database.GetSolutionsByGrammarIdWithUserDataParams{
+		GrammarID: uuidGrammarID,
 		Limit:     int32(limitInt),
 	})
 	if err != nil {
@@ -60,16 +55,15 @@ func GetSolutionsByGrammarIdWithUserData(w http.ResponseWriter, r *http.Request)
 	helpers.RespondWithJSON(w, http.StatusOK, solutions)
 }
 
-func GetSolutionsByUser(w http.ResponseWriter, r *http.Request) {
-	apiConfig := r.Context().Value("api_config").(*config.APIConfig)
-	clerkUserIdParam := chi.URLParam(r, "clerkUserId")
+func (c *APIConfig) GetSolutionsByUser(w http.ResponseWriter, r *http.Request) {
+	clerkUserIDParam := chi.URLParam(r, "clerkUserId")
 
-	user, err := apiConfig.DB.GetUserByClerkId(r.Context(), clerkUserIdParam)
+	user, err := c.DB.GetUserByClerkId(r.Context(), clerkUserIDParam)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error fetching user by clerkId: %v", err))
 	}
 
-	solutions, err := apiConfig.DB.GetSolutionsByUserId(r.Context(), user.ID)
+	solutions, err := c.DB.GetSolutionsByUserId(r.Context(), user.ID)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error finding solutions by user: %v", err))
 	}
@@ -77,24 +71,23 @@ func GetSolutionsByUser(w http.ResponseWriter, r *http.Request) {
 	helpers.RespondWithJSON(w, http.StatusOK, solutions)
 }
 
-func GetHasUserSolvedGrammar(w http.ResponseWriter, r *http.Request) {
-	apiConfig := r.Context().Value("api_config").(*config.APIConfig)
-	clerkUserIdParam := chi.URLParam(r, "clerkUserId")
-	grammar_id := chi.URLParam(r, "grammarId")
+func (c *APIConfig) GetHasUserSolvedGrammar(w http.ResponseWriter, r *http.Request) {
+	clerkUserIDParam := chi.URLParam(r, "clerkUserId")
+	grammarID := chi.URLParam(r, "grammarId")
 
-	uuidGrammarId, err := uuid.Parse(grammar_id)
+	uuidGrammarID, err := uuid.Parse(grammarID)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error parsing grammar id: %v", err))
 	}
 
-	user, err := apiConfig.DB.GetUserByClerkId(r.Context(), clerkUserIdParam)
+	user, err := c.DB.GetUserByClerkId(r.Context(), clerkUserIDParam)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error fetching user by clerkId: %v", err))
 	}
 
-	solutions, err := apiConfig.DB.GetHasUserSolved(r.Context(), database.GetHasUserSolvedParams{
+	solutions, err := c.DB.GetHasUserSolved(r.Context(), database.GetHasUserSolvedParams{
 		UserID:    user.ID,
-		GrammarID: uuidGrammarId,
+		GrammarID: uuidGrammarID,
 	})
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -108,12 +101,10 @@ func GetHasUserSolvedGrammar(w http.ResponseWriter, r *http.Request) {
 	helpers.RespondWithJSON(w, http.StatusOK, solutions)
 }
 
-func CreateSolution(w http.ResponseWriter, r *http.Request) {
-	apiConfig := r.Context().Value("api_config").(*config.APIConfig)
-
+func (c *APIConfig) CreateSolution(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
-		GrammarId uuid.UUID `json:"grammar_id"`
-		UserId    string    `json:"user_id"`
+		GrammarID uuid.UUID `json:"grammar_id"`
+		UserID    string    `json:"user_id"`
 		Solution  string    `json:"solution"`
 		Grammar   string    `json:"grammar"`
 	}
@@ -126,26 +117,25 @@ func CreateSolution(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	grammar, err := apiConfig.DB.GetGrammarById(r.Context(), params.GrammarId)
+	grammar, err := c.DB.GetGrammarById(r.Context(), params.GrammarID)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusBadRequest, "Grammar could not be found.")
 	}
 
-	user, err := apiConfig.DB.GetUserByClerkId(r.Context(), params.UserId)
+	user, err := c.DB.GetUserByClerkId(r.Context(), params.UserID)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusBadRequest, "User could not be found.")
 	}
 
-	solution, err := apiConfig.DB.CreateSolution(r.Context(), database.CreateSolutionParams{
+	solution, err := c.DB.CreateSolution(r.Context(), database.CreateSolutionParams{
 		ID:        uuid.New(),
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
 		Solution:  params.Solution,
 		UserID:    user.ID,
-		GrammarID: params.GrammarId,
+		GrammarID: params.GrammarID,
 		Grammar:   grammar.Grammar,
 	})
-
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Error creating grammar: %v", err))
 	}
@@ -153,9 +143,7 @@ func CreateSolution(w http.ResponseWriter, r *http.Request) {
 	helpers.RespondWithJSON(w, http.StatusCreated, solution)
 }
 
-func DeleteSolution(w http.ResponseWriter, r *http.Request) {
-	apiConfig := r.Context().Value("api_config").(*config.APIConfig)
-
+func (c *APIConfig) DeleteSolution(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		ID string `json:"id"`
 	}
@@ -168,12 +156,12 @@ func DeleteSolution(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	uuidSolutionId, err := uuid.Parse(params.ID)
+	uuidSolutionID, err := uuid.Parse(params.ID)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error parsing solution id: %v", err))
 	}
 
-	err = apiConfig.DB.DeleteSolutionBySolutionId(r.Context(), uuidSolutionId)
+	err = c.DB.DeleteSolutionBySolutionId(r.Context(), uuidSolutionID)
 	if err != nil {
 		helpers.RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error deleting solution with solution id: %v", err))
 	}
